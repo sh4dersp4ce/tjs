@@ -29,7 +29,21 @@ const fragment_shader = frag`
     }
 `;
 
-const geometry = new THREE.PlaneGeometry(1, 1);
+// const geometry = new THREE.PlaneGeometry(1, 1);
+
+const geometry = new THREE.BufferGeometry();
+const vertices = new Float32Array([
+	-1.0, -1.0,  1.0,
+	 1.0, -1.0,  1.0,
+	 1.0,  1.0,  1.0,
+]);
+const uv = new Float32Array([
+	0.0, 0.0,
+	1.0, 0.0,
+	1.0, 1.0,
+]);
+geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 
 console.log(vertex_shader, fragment_shader);
 
@@ -53,8 +67,12 @@ function animate() {
 
 function app() {
     const gui = new dat.GUI();
-    var person = {name: 'Sam'};
-    gui.add(person, 'name');
+    var param = {
+        name: 'Sam',
+        rotate_x: 0,
+    };
+    gui.add(param, 'name');
+    gui.add(param, 'rotate_x').min(-10).max(10).step(.1).listen().onChange(x => console.log(x));
     
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
