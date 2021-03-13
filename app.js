@@ -72,6 +72,8 @@ function add_plane(scene, folder) {
         rotate_z: 0,
         x: 0,
         y: 0,
+        scale_x: 1,
+        scale_y: 1,
     };
 
     folder.add(param, 'rotate_x')
@@ -90,6 +92,13 @@ function add_plane(scene, folder) {
     folder.add(param, 'y')
         .min(-5).max(5).step(.05)
         .listen().onChange(value => plane.position.y = value);
+
+    folder.add(param, 'scale_x')
+        .min(0).max(5).step(.01)
+        .listen().onChange(value => plane.scale.x = value);
+    folder.add(param, 'scale_y')
+        .min(0).max(5).step(.01)
+        .listen().onChange(value => plane.scale.y = value);
 }
 
 function app() {
