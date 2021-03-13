@@ -29,7 +29,7 @@ const fragment_shader = frag`
     }
 `;
 
-const geometry = new THREE.BoxGeometry(2, 2, 2);
+const geometry = new THREE.PlaneGeometry(1, 1);
 
 console.log(vertex_shader, fragment_shader);
 
@@ -41,24 +41,26 @@ const material = new THREE.ShaderMaterial( {
 	fragmentShader: fragment_shader[0],
 } );
 
-const cube = new THREE.Mesh(geometry, material);
+const plane = new THREE.Mesh(geometry, material);
 
 function animate() {
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
+    plane.rotation.x += 0.01;
+    plane.rotation.y += 0.01;
 
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
 }
 
 function app() {
-
+    const gui = new dat.GUI();
+    var person = {name: 'Sam'};
+    gui.add(person, 'name');
     
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
     
-    scene.add( cube );
+    scene.add(plane);
     
     camera.position.z = 5;
 
