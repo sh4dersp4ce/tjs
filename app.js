@@ -29,8 +29,8 @@ const fragment_shader = frag`
     }
 `;
 
-// const geometry = new THREE.PlaneGeometry(1, 1);
-
+const geometry = new THREE.PlaneGeometry(1, 1);
+/*
 const geometry = new THREE.BufferGeometry();
 const vertices = new Float32Array([
 	-1.0, -1.0,  1.0,
@@ -44,6 +44,7 @@ const uv = new Float32Array([
 ]);
 geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
 geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+*/
 
 console.log(vertex_shader, fragment_shader);
 
@@ -58,21 +59,40 @@ const material = new THREE.ShaderMaterial( {
 const plane = new THREE.Mesh(geometry, material);
 
 function animate() {
-    plane.rotation.x += 0.01;
-    plane.rotation.y += 0.01;
-
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
 }
 
 function app() {
     const gui = new dat.GUI();
-    var param = {
+
+    let folder = gui.addFolder("1");
+
+    let param = {
         name: 'Sam',
+        add_plane: () => {console.log("add plane")},
         rotate_x: 0,
+        rotate_y: 0,
+        rotate_z: 0,
+        x: 0,
+        y: 0,
     };
-    gui.add(param, 'name');
-    gui.add(param, 'rotate_x').min(-10).max(10).step(.1).listen().onChange(x => console.log(x));
+    folder.add(param, 'rotate_x')
+        .min(-1.5).max(1.5).step(.01)
+        .listen().onChange(value => plane.rotation.x = value);
+    folder.add(param, 'rotate_y')
+        .min(-1.5).max(1.5).step(.01)
+        .listen().onChange(value => plane.rotation.y = value);
+    folder.add(param, 'rotate_z')
+        .min(-1.5).max(1.5).step(.01)
+        .listen().onChange(value => plane.rotation.z = value);
+    
+    folder.add(param, 'x')
+        .min(-12).max(12).step(.05)
+        .listen().onChange(value => plane.position.x = value);
+    folder.add(param, 'y')
+        .min(-5).max(5).step(.05)
+        .listen().onChange(value => plane.position.y = value);
     
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
