@@ -10,8 +10,11 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 const vertex_shader = vert`
+    varying vec2 _uv;
+
     void main() {
         gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        _uv = uv;
     }
 `;
 
@@ -19,8 +22,10 @@ const fragment_shader = frag`
     precision mediump float;
     precision mediump int;
 
+    varying vec2 _uv;
+
     void main() {
-        gl_FragColor = vec4(vec3(1., 0., 0.), 1.);
+        gl_FragColor = vec4(vec3(pow(_uv.x - 0.5, 2.) * 2. + pow(_uv.y - 0.5, 2.) * 2., 0., 0.), 1.);
     }
 `;
 
