@@ -79,7 +79,7 @@ function add_plane(scene, folder) {
         varying vec2 _uv;
 
         void main() {
-            gl_FragColor = vec4(vec3(pow(_uv.x - 0.5, 2.) * 2. + pow(_uv.y - 0.5, 2.) * 2., 0., 0.), 1.);
+            gl_FragColor = vec4(vec3(0.), 1.);
         }
     `;
 
@@ -173,13 +173,13 @@ function app() {
 
     let plane_id = 0;
 
-    
-
     let param = {
         add_plane: () => {
             let folder = gui.addFolder("plane" + plane_id);
             plane_id++;
-            cbs.push(add_plane(scene, folder));
+            let plane = add_plane(scene, folder);
+            cbs.push(plane);
+            plane.update_material(editor.getValue());
         }
     };
 

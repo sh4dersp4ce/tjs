@@ -13653,7 +13653,6 @@
 
 			if (subscript === undefined || subscript === '[' && matchEnd + 2 === pathLength) {
 				// bare name or "pure" bottom-level array "[0]" suffix
-				console.log("u", id, activeInfo, addr);
 				addUniform(container, subscript === undefined ? new SingleUniform(id, activeInfo, addr) : new PureArrayUniform(id, activeInfo, addr));
 				break;
 			} else {
@@ -13872,6 +13871,8 @@
 	}
 
 	function includeReplacer(match, include) {
+		console.log("shader chunk", ShaderChunk);
+
 		var string = ShaderChunk[include];
 
 		if (string === undefined) {
@@ -38088,6 +38089,7 @@
 	exports.DecrementStencilOp = DecrementStencilOp;
 	exports.DecrementWrapStencilOp = DecrementWrapStencilOp;
 	exports.DefaultLoadingManager = DefaultLoadingManager;
+	exports.DefaultVertex = default_vertex;
 	exports.DepthFormat = DepthFormat;
 	exports.DepthStencilFormat = DepthStencilFormat;
 	exports.DepthTexture = DepthTexture;
@@ -38129,6 +38131,7 @@
 	exports.FontLoader = FontLoader;
 	exports.FrontSide = FrontSide;
 	exports.Frustum = Frustum;
+	exports.getCommonVertexShader = _getCommonVertexShader;
 	exports.GLBufferAttribute = GLBufferAttribute;
 	exports.GLSL1 = GLSL1;
 	exports.GLSL3 = GLSL3;
