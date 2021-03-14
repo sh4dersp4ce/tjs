@@ -130,6 +130,11 @@ function add_plane(scene, folder) {
 function app() {
     const gui = new dat.GUI();
 
+    let editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/glsl");
+    editor.setOption("highlightActiveLine", true);
+
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
