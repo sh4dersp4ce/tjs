@@ -19,7 +19,6 @@ function animate() {
 }
 
 function add_plane(scene, folder) {
-    // const geometry = new THREE.PlaneGeometry(1, 1);
     const geometry = new THREE.BufferGeometry();
 
     let vertices = [];
