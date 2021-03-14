@@ -10,19 +10,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 /*
-const geometry = new THREE.BufferGeometry();
-const vertices = new Float32Array([
-	-1.0, -1.0,  1.0,
-	 1.0, -1.0,  1.0,
-	 1.0,  1.0,  1.0,
-]);
-const uv = new Float32Array([
-	0.0, 0.0,
-	1.0, 0.0,
-	1.0, 1.0,
-]);
-geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+
 */
 
 function animate() {
@@ -31,7 +19,41 @@ function animate() {
 }
 
 function add_plane(scene, folder) {
-    const geometry = new THREE.PlaneGeometry(1, 1);
+    // const geometry = new THREE.PlaneGeometry(1, 1);
+    const geometry = new THREE.BufferGeometry();
+
+    let vertices = [];
+    let uv = [];
+
+    function set_corners(N) {
+        const Z = 0.;
+
+        vertices = [];
+        uv = [];
+
+        let corners = [];
+
+        for(let i = 0; i < N; i++) {
+            let x = Math.cos(Math.PI * 2 * i / N);
+            let y = Math.sin(Math.PI * 2 * i / N);
+            corners.push({x, y});
+        }
+
+        for(let i = 0; i < N; i++) {
+            vertices.push(0., 0., Z);
+            vertices.push(corners[i].x, corners[i].y, Z);
+            vertices.push(corners[(i + 1) % N].x, corners[(i + 1) % N].y, Z);
+
+            uv.push(0.5, 0.5);
+            uv.push(corners[i].x + 0.5, corners[i].y + 0.5);
+            uv.push(corners[(i + 1) % N].x + 0.5, corners[(i + 1) % N].y + 0.5);
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+        geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv), 2));
+    }
+
+    set_corners(3);
 
     const vertex_shader = vert`
         varying vec2 _uv;
@@ -74,6 +96,7 @@ function add_plane(scene, folder) {
         y: 0,
         scale_x: 1,
         scale_y: 1,
+        corners: 3,
     };
 
     folder.add(param, 'rotate_x')
@@ -99,6 +122,10 @@ function add_plane(scene, folder) {
     folder.add(param, 'scale_y')
         .min(0).max(5).step(.01)
         .listen().onChange(value => plane.scale.y = value);
+    
+    folder.add(param, 'corners')
+        .min(3).max(12).step(1)
+        .listen().onChange(value => set_corners(value));
 }
 
 function app() {
