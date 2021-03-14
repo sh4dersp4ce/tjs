@@ -130,6 +130,11 @@ position:absolute;\
 z-index:20;\
 background-color:rgba(255, 0, 0, 0.3);\
 }\
+.Highlight{\
+position:absolute;\
+z-index:20;\
+background-color:rgba(34, 0, 42, 0.8);\
+}\
 .ace_scroller{\
   cursor: url('../images/cursor.png') 1 8, text;\
 }";

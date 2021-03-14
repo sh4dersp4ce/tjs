@@ -125,6 +125,20 @@ function add_plane(scene, folder) {
     folder.add(param, 'corners')
         .min(3).max(12).step(1)
         .listen().onChange(value => set_corners(value));
+
+    function update_material(fragment_text) {
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 1.0 }
+            },
+            vertexShader: vertex_shader[0],
+            fragmentShader: fragment_text,
+        });
+
+        plane.material = material;
+    }
+
+    return update_material;
 }
 
 function app() {
@@ -134,19 +148,24 @@ function app() {
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode("ace/mode/glsl");
     editor.setOption("highlightActiveLine", true);
+    editor.session.addMarker(new ace.Range(0, 0, 1000, 1000), "Highlight", "text", false);
 
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
     let plane_id = 0;
 
+    let cbs = [];
+
     let param = {
         add_plane: () => {
             let folder = gui.addFolder("plane" + plane_id);
             plane_id++;
-            add_plane(scene, folder);
+            cbs.push(add_plane(scene, folder));
         }
     };
+
+    editor.on("change", (_) => cbs.forEach(cb => cb(editor.getValue())));
 
     gui.add(param, "add_plane");
 
