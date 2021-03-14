@@ -9,11 +9,20 @@ const camera = new THREE.PerspectiveCamera(
     75, window.innerWidth / window.innerHeight, 0.1, 1000
 );
 
-/*
+let cbs = [];
 
-*/
+let time = 0;
+let prev_time = (+new Date());
 
 function animate() {
+    let now = (+new Date());
+    let dt = (now - prev_time) / 1000;
+    prev_time = now;
+    
+    time += dt;
+    cbs.forEach(cb => cb.update_uniform({time}));
+    // console.log(time);
+
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
 }
@@ -74,10 +83,12 @@ function add_plane(scene, folder) {
         }
     `;
 
+    let uniforms = {
+        time: {value: 1.0}
+    };
+
     const material = new THREE.ShaderMaterial( {
-        uniforms: {
-            time: { value: 1.0 }
-        },
+        uniforms,
         vertexShader: vertex_shader[0],
         fragmentShader: fragment_shader[0],
     } );
@@ -128,9 +139,7 @@ function add_plane(scene, folder) {
 
     function update_material(fragment_text) {
         const material = new THREE.ShaderMaterial({
-            uniforms: {
-                time: { value: 1.0 }
-            },
+            uniforms,
             vertexShader: vertex_shader[0],
             fragmentShader: fragment_text,
         });
@@ -138,7 +147,16 @@ function add_plane(scene, folder) {
         plane.material = material;
     }
 
-    return update_material;
+    function update_uniform(data) {
+        // plane.material.uniforms.time.value = data.time;
+
+        for(key in data) {
+            plane.material.uniforms[key].value = data[key];
+            // console.log(key, ":", plane.material.uniforms[key].value);
+        }
+    }
+
+    return {update_material, update_uniform};
 }
 
 function app() {
@@ -155,7 +173,7 @@ function app() {
 
     let plane_id = 0;
 
-    let cbs = [];
+    
 
     let param = {
         add_plane: () => {
@@ -165,7 +183,7 @@ function app() {
         }
     };
 
-    editor.on("change", (_) => cbs.forEach(cb => cb(editor.getValue())));
+    editor.on("change", (_) => cbs.forEach(cb => cb.update_material(editor.getValue())));
 
     gui.add(param, "add_plane");
 

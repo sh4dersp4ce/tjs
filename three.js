@@ -13653,6 +13653,7 @@
 
 			if (subscript === undefined || subscript === '[' && matchEnd + 2 === pathLength) {
 				// bare name or "pure" bottom-level array "[0]" suffix
+				console.log("u", id, activeInfo, addr);
 				addUniform(container, subscript === undefined ? new SingleUniform(id, activeInfo, addr) : new PureArrayUniform(id, activeInfo, addr));
 				break;
 			} else {
