@@ -14,6 +14,8 @@ let cbs = [];
 let time = 0;
 let prev_time = (+new Date());
 
+let test_texture = null;
+
 function animate() {
     let now = (+new Date());
     let dt = (now - prev_time) / 1000;
@@ -83,8 +85,11 @@ function add_plane(scene, folder) {
         }
     `;
 
+    console.log(test_texture);
+
     let uniforms = {
-        time: {value: 1.0}
+        time: {value: 1.0},
+        texture0: {type: "t", value: test_texture},
     };
 
     const material = new THREE.ShaderMaterial( {
@@ -180,12 +185,20 @@ function app() {
             let plane = add_plane(scene, folder);
             cbs.push(plane);
             plane.update_material(editor.getValue());
-        }
+        },
+        loaded: false,
     };
 
     editor.on("change", (_) => cbs.forEach(cb => cb.update_material(editor.getValue())));
 
     gui.add(param, "add_plane");
+
+    const texture_loader = new THREE.TextureLoader();
+    texture_loader.load("test.jpg",
+        (texture) => {test_texture = texture; gui.add(param, "loaded");},
+        null,
+        (err) => alert("texture load error " + JSON.stringify(err))
+    );
 
     camera.position.z = 5;
 
