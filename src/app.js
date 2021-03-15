@@ -59,7 +59,7 @@ function app() {
     gui.add(param, "add_plane");
 
     const texture_loader = new THREE.TextureLoader();
-    texture_loader.load("test.jpg",
+    texture_loader.load("assets/test.jpg",
         (texture) => {test_texture = texture; gui.add(param, "loaded");},
         null,
         (err) => alert("texture load error " + JSON.stringify(err))
