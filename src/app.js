@@ -5,9 +5,7 @@ const frag = x => x;
 const renderer = new THREE.WebGLRenderer();
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(
-    75, window.innerWidth / window.innerHeight, 0.1, 1000
-);
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
 
 let cbs = [];
 
@@ -52,11 +50,31 @@ function app() {
             plane.update_material(editor.getValue());
         },
         loaded: false,
+        corner_id: 0
     };
+
+    let corner_id = null;
+
+    window.addEventListener('mousedown', (evt) => {
+        let x = evt.pageX;
+        let y = evt.pageY;
+
+        // corner_id = cbs[0].get_corner_id(x, y); // TODO select plane
+        corner_id = param.corner_id;
+    });
+    window.addEventListener('mousemove', (evt) => {
+        if(cbs.length > 0) {
+            cbs[0].move_corner(corner_id, evt.pageX, evt.pageY);
+        }
+    });
+    window.addEventListener('mouseup', () => {corner_id = null});
 
     editor.on("change", (_) => cbs.forEach(cb => cb.update_material(editor.getValue())));
 
     gui.add(param, "add_plane");
+    gui.add(param, 'corner_id')
+        .min(0).max(3).step(1)
+        .listen().onChange(value => param.corner_id = value);
 
     const texture_loader = new THREE.TextureLoader();
     texture_loader.load("assets/test.jpg",
