@@ -55,14 +55,42 @@ function app() {
 
     let corner_id = null;
 
+    let move_corners = "edit";
+
+    document.addEventListener('keydown', (event) => {
+        if(event.key === "F9") {
+            if(move_corners == "view") {
+                move_corners = "edit";
+                dat.GUI.toggleHide();
+            }
+            else if(move_corners == "edit") {
+                move_corners = "map";
+            }
+            else if(move_corners == "map") {
+                dat.GUI.toggleHide();
+                move_corners = "view";
+            }
+
+            cbs[0].set_visible(move_corners === "map");
+
+            if(move_corners !== "map") {
+                corner_id = null;
+            }
+
+            editor.container.style.visibility = (move_corners == "edit") ? "visible" : "hidden";
+        }
+    });
+
     window.addEventListener('mousedown', (evt) => {
         let x = evt.pageX;
         let y = evt.pageY;
 
-        corner_id = cbs[0].get_corner_id(x, y); // TODO select plane
+        if(move_corners === "map") {
+            corner_id = cbs[0].get_corner_id(x, y); // TODO select plane
+        }
     });
     window.addEventListener('mousemove', (evt) => {
-        if(cbs.length > 0) {
+        if(cbs.length > 0 && (move_corners === "map")) {
             cbs[0].move_corner(corner_id, evt.pageX, evt.pageY);
         }
     });

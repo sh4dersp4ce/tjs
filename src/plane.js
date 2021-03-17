@@ -17,6 +17,12 @@ function add_plane(scene, folder, param) {
 
         corner_planes.push(plane);
         scene.add(plane);
+
+        plane.visible = false;
+    }
+
+    function set_visible(flag) {
+        corner_planes.forEach(corner => corner.visible = flag);
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -198,5 +204,5 @@ function add_plane(scene, folder, param) {
 
     update_transform();
 
-    return {update_material, update_uniform, get_corner_id, move_corner};
+    return {update_material, update_uniform, get_corner_id, move_corner, set_visible};
 }
