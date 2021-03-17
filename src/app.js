@@ -2,7 +2,7 @@ const glsl = x => x;
 const vert = x => x;
 const frag = x => x;
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({alpha: false});
 const scene = new THREE.Scene();
 
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
@@ -44,13 +44,15 @@ function app() {
     let param = {
         add_plane: () => {
             let folder = gui.addFolder("plane" + plane_id);
-            plane_id++;
             let plane = add_plane(scene, folder, {texture0: test_texture, plane_id});
+
+            plane_id++;
+            
             cbs.push(plane);
             plane.update_material(editor.getValue());
         },
         loaded: false,
-        corner_id: 0
+        plane_id: 0
     };
 
     let corner_id = null;
@@ -71,7 +73,7 @@ function app() {
                 move_corners = "view";
             }
 
-            cbs[0].set_visible(move_corners === "map");
+            cbs[param.plane_id].set_visible(move_corners === "map");
 
             if(move_corners !== "map") {
                 corner_id = null;
@@ -86,12 +88,12 @@ function app() {
         let y = evt.pageY;
 
         if(move_corners === "map") {
-            corner_id = cbs[0].get_corner_id(x, y); // TODO select plane
+            corner_id = cbs[param.plane_id].get_corner_id(x, y);
         }
     });
     window.addEventListener('mousemove', (evt) => {
         if(cbs.length > 0 && (move_corners === "map")) {
-            cbs[0].move_corner(corner_id, evt.pageX, evt.pageY);
+            cbs[param.plane_id].move_corner(corner_id, evt.pageX, evt.pageY);
         }
     });
     window.addEventListener('mouseup', () => {corner_id = null});
@@ -99,9 +101,9 @@ function app() {
     editor.on("change", (_) => cbs.forEach(cb => cb.update_material(editor.getValue())));
 
     gui.add(param, "add_plane");
-    gui.add(param, 'corner_id')
-        .min(0).max(3).step(1)
-        .listen().onChange(value => param.corner_id = value);
+    gui.add(param, 'plane_id')
+        .min(0).max(5).step(1)
+        .listen().onChange(value => param.plane_id = value);
 
     const texture_loader = new THREE.TextureLoader();
     texture_loader.load("assets/test.jpg",

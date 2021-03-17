@@ -65,8 +65,11 @@ function add_plane(scene, folder, param) {
         uniform mat4 projection;
 
         void main() {
-            gl_Position = projection * vec4( position, 1.0 );
-            _uv = uv;
+            vec3 _position = position * 0.355; // WAT
+            _position = _position + 0.25;
+
+            gl_Position = projection * vec4(_position, 1.0 );
+            _uv = (uv - 0.5) * 0.7 + 0.5; // WAT x2
         }
     `;
 
@@ -94,14 +97,22 @@ function add_plane(scene, folder, param) {
     let uniforms = {
         time: {value: 1.0},
         texture0: {type: "t", value: param.texture0},
-        projection: {value: projection}
+        projection: {value: projection},
+        plane_id: {value: param.plane_id},
     };
 
-    const material = new THREE.ShaderMaterial( {
+    console.log(uniforms);
+
+    const material = new THREE.ShaderMaterial({
         uniforms,
         vertexShader: vertex_shader[0],
         fragmentShader: fragment_shader[0],
-    } );
+        depthTest: false,
+        transparent: true,
+        opacity: 0.5,
+    });
+
+    material.transparent = true;
     
     const plane = new THREE.Mesh(geometry, material);
 
