@@ -35,7 +35,7 @@ function add_plane(scene, folder, param) {
         geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv), 2));
     }
 
-    set_corners(3);
+    set_corners(4);
 
     const vertex_shader = vert`
         varying vec2 _uv;
@@ -62,6 +62,8 @@ function add_plane(scene, folder, param) {
     let uniforms = {
         time: {value: 1.0},
         texture0: {type: "t", value: param.texture0},
+
+        texture1: {type: "t", value: param.texture0},
     };
 
     const material = new THREE.ShaderMaterial( {
@@ -71,6 +73,10 @@ function add_plane(scene, folder, param) {
     } );
     
     const plane = new THREE.Mesh(geometry, material);
+    plane.rotation.z = Math.PI / 4;
+    plane.scale.x = 8;
+    plane.scale.y = 8;
+
 
     scene.add(plane);
     
@@ -126,6 +132,7 @@ function add_plane(scene, folder, param) {
     function update_uniform(data) {
         for(key in data) {
             plane.material.uniforms[key].value = data[key];
+            
         }
     }
 
