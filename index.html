@@ -19,20 +19,43 @@
 	<body>
         <div id="editor">precision mediump float;
 precision mediump int;
-    
+                
 varying vec2 _uv;
 uniform float time;
 uniform sampler2D texture0;
+uniform int plane_id;
     
 void main() {
-    // gl_FragColor = vec4(vec3(sin(time * 10.) * 0.5 + 0.5, _uv.x, _uv.y), 1.);
-    gl_FragColor = texture(texture0, _uv);
+    vec2 uv = _uv;
+    
+    vec3 color = vec3(0.);
+    
+    float grid = 0.;
+    
+    grid += clamp(sin(uv.x * 200. + time * 10.) - 0.5, 0., 1.);
+    grid += clamp(cos(uv.y * 200. + sin(time) * 10.) - 0.5, 0., 1.);
+    
+    
+    vec3 grid_color = vec3(0.);
+    if(plane_id == 0) {
+        grid_color.r = 1.;
+    } else if(plane_id == 1) {
+        grid_color.g = 1.;
+    } else if(plane_id == 2) {
+        grid_color.b = 1.;
+    }
+    
+    color += grid_color * grid;
+    
+
+    gl_FragColor = vec4(color, 1.);
 }</div>
 
         <script src="lib/three.js"></script>
         <script src="lib/dat.gui.min.js"></script>
         <script src="lib/ace/ace.js"></script>
 
+        <script src="src/projection.js"></script>
         <script src="src/plane.js"></script>
         <script src="src/app.js"></script>
 	</body>
