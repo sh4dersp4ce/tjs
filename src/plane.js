@@ -8,7 +8,7 @@ function add_plane(scene, folder, param) {
     let corner_planes = [];
     for(let i = 0; i < 4; i++) {
         const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-        const geometry = new THREE.PlaneGeometry(0.1,0.1);
+        const geometry = new THREE.PlaneGeometry(0.04,0.04);
         const plane = new THREE.Mesh(geometry, material);
         plane.rotation.z = Math.PI/4;
         plane.position.x = Math.cos(Math.PI * 2 * i / 4 + Math.PI/4);
@@ -157,16 +157,25 @@ function add_plane(scene, folder, param) {
     }
 
     function get_corner_id(x, y) {
-        return 0;
+        x = x * 2 / window.innerWidth - 1;
+        y = -y * 2 / window.innerHeight + 1.;
+
+        let dists = corner_planes.map((corner, id) => {
+            return {id, dist: Math.sqrt(Math.pow(corner.position.x - x, 2) + Math.pow(corner.position.y - y, 2))};
+        });
+
+        console.log(JSON.stringify(dists));
+
+        return dists.sort((a, b) => a.dist - b.dist)[0].id;
     }
 
     function update_transform() {
         let t = transform2d(
-            1, 1,
-            corner_planes[0].position.x, corner_planes[0].position.y,
-            corner_planes[1].position.x, corner_planes[1].position.y,
+            0.5, 0.5,
             corner_planes[2].position.x, corner_planes[2].position.y,
-            corner_planes[3].position.x, corner_planes[3].position.y
+            corner_planes[3].position.x, corner_planes[3].position.y,
+            corner_planes[1].position.x, corner_planes[1].position.y,
+            corner_planes[0].position.x, corner_planes[0].position.y
         );
 
         projection.set(

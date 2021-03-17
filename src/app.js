@@ -59,8 +59,7 @@ function app() {
         let x = evt.pageX;
         let y = evt.pageY;
 
-        // corner_id = cbs[0].get_corner_id(x, y); // TODO select plane
-        corner_id = param.corner_id;
+        corner_id = cbs[0].get_corner_id(x, y); // TODO select plane
     });
     window.addEventListener('mousemove', (evt) => {
         if(cbs.length > 0) {

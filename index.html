@@ -25,8 +25,15 @@ uniform float time;
 uniform sampler2D texture0;
     
 void main() {
-    // gl_FragColor = vec4(vec3(sin(time * 10.) * 0.5 + 0.5, _uv.x, _uv.y), 1.);
-    gl_FragColor = texture(texture0, _uv);
+    vec2 uv = _uv;
+    uv = uv - 0.5;
+    uv = uv * 2.;
+    if(!(uv.x > 0. && uv.x < 1. && uv.y > 0. && uv.y < 1.)) {
+        gl_FragColor = vec4(0.);
+        return;
+    }
+
+    gl_FragColor = texture(texture0, uv);
 }</div>
 
         <script src="lib/three.js"></script>
