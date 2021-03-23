@@ -1,5 +1,5 @@
 
-function add_plane(scene, folder, param) {
+function add_plane(scene, backstage, folder, param) {
     const geometry = new THREE.BufferGeometry();
 
     let vertices = [];
@@ -62,8 +62,7 @@ function add_plane(scene, folder, param) {
     let uniforms = {
         time: {value: 1.0},
         texture0: {type: "t", value: param.texture0},
-
-        texture1: {type: "t", value: param.texture0},
+        resolution: {value: [window.innerWidth, window.innerHeight]}
     };
 
     const material = new THREE.ShaderMaterial( {
@@ -74,11 +73,20 @@ function add_plane(scene, folder, param) {
     
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.z = Math.PI / 4;
-    plane.scale.x = 8;
-    plane.scale.y = 8;
-
-
+    plane.scale.x = 4;
+    plane.scale.y = 4;
     scene.add(plane);
+    const screenplane = new THREE.PlaneGeometry(2, 2);    
+    const mat = new THREE.MeshBasicMaterial({
+        color: 'red',
+    });
+
+    // combine our image geometry and material into a mesh
+    var mesh = new THREE.Mesh(screenplane, mat);
+    mesh.position.set(0,0,0);
+
+    backstage.add(mesh);
+
     
     let gui_param = {
         rotate_x: 0,
@@ -127,12 +135,13 @@ function add_plane(scene, folder, param) {
         });
 
         plane.material = material;
+        mesh.material = material;
+
     }
 
     function update_uniform(data) {
         for(key in data) {
-            plane.material.uniforms[key].value = data[key];
-            
+            plane.material.uniforms[key].value = data[key];            
         }
     }
 
