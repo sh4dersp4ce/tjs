@@ -12,12 +12,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 
-
 const backstage = new THREE.Scene();
-
-// set backstage camera
-let d = 2;
-// const ortcamera = new THREE.OrthographicCamera( window.innerWidth / - d, window.innerWidth / d, window.innerHeight / d, window.innerHeight / -d, 1, 1000 );
 const ortcamera = new THREE.OrthographicCamera(
     -1, // left
      1, // right
@@ -26,9 +21,7 @@ const ortcamera = new THREE.OrthographicCamera(
     -1, // near,
      1, // far
   );
-backstage.add( ortcamera );
-
-
+backstage.add(ortcamera);
 
 
 let cbs = [];  // callbacks
@@ -59,23 +52,18 @@ function animate() {
     
     time += dt;
 
-
     renderer.setRenderTarget(renderTargets[pass % 2]);
     renderer.render(backstage, ortcamera);
     
     renderer.setRenderTarget(null);
     renderer.render(scene, camera);
-    //renderer.render(backstage, ortcamera);
-
 
     pass += 1;
-
     cbs.forEach(cb => cb.update_uniform({time, texture0: renderTargets[(pass - 1) % 2].texture}));
         
     requestAnimationFrame(animate);   
     
-    
-    
+        
 }
 
 function app() {
@@ -100,27 +88,7 @@ function app() {
             plane_id++;
             let plane = add_plane(scene, backstage, folder, {texture0: test_texture, plane_id});
             cbs.push(plane);
-            plane.update_material(editor.getValue());
-            console.log(test_texture);
-
-
-            // add fullscreen plane 
-            // var geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
-            // const screenplane = new THREE.PlaneGeometry(2, 2);
-    
-            // const mat = new THREE.MeshBasicMaterial({
-            //     color: 'red',
-            // });
-
-            // // combine our image geometry and material into a mesh
-            // var mesh = new THREE.Mesh(screenplane, mat);
-            // mesh.position.set(0,0,0);
-
-            // backstage.add(mesh);
-
-
-
-            
+            plane.update_material(editor.getValue());           
         },
         loaded: false,
     };
