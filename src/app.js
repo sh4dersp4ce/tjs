@@ -5,12 +5,24 @@ const frag = x => x;
 const renderer = new THREE.WebGLRenderer();
 const scene = new THREE.Scene();
 
-
 scene.background = new THREE.Color('purple');
 
 const camera = new THREE.PerspectiveCamera(
     75, window.innerWidth / window.innerHeight, 0.1, 1000
 );
+
+
+const backstage = new THREE.Scene();
+const ortcamera = new THREE.OrthographicCamera(
+    -1, // left
+     1, // right
+     1, // top
+    -1, // bottom
+    -1, // near,
+     1, // far
+  );
+backstage.add(ortcamera);
+
 
 let cbs = [];  // callbacks
 
@@ -41,19 +53,17 @@ function animate() {
     time += dt;
 
     renderer.setRenderTarget(renderTargets[pass % 2]);
+    renderer.render(backstage, ortcamera);
+    
+    renderer.setRenderTarget(null);
     renderer.render(scene, camera);
 
-    renderer.setRenderTarget(null);
-    renderer.render(scene, camera)
-
     pass += 1;
-
     cbs.forEach(cb => cb.update_uniform({time, texture0: renderTargets[(pass - 1) % 2].texture}));
         
     requestAnimationFrame(animate);   
     
-    
-    
+        
 }
 
 function app() {
@@ -76,10 +86,9 @@ function app() {
         add_plane: () => {
             let folder = gui.addFolder("plane" + plane_id);
             plane_id++;
-            let plane = add_plane(scene, folder, {texture0: test_texture, plane_id});
+            let plane = add_plane(scene, backstage, folder, {texture0: test_texture, plane_id});
             cbs.push(plane);
-            plane.update_material(editor.getValue());
-            console.log(test_texture);
+            plane.update_material(editor.getValue());           
         },
         loaded: false,
     };
