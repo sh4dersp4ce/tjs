@@ -5,6 +5,22 @@ function add_plane(scene, backstage, folder, param) {
     let vertices = [];
     let uv = [];
 
+    // create corners
+    let corner_planes = [];
+    for(let i = 0; i < 4; i++) {
+        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        const geometry = new THREE.PlaneGeometry(0.2,0.2);
+        const plane = new THREE.Mesh(geometry, material);
+        plane.rotation.z = Math.PI/4;
+        plane.position.x = Math.cos(Math.PI * 2 * i / 4 + Math.PI/4);
+        plane.position.y = Math.sin(Math.PI * 2 * i / 4 + Math.PI/4);
+
+        corner_planes.push(plane);
+        scene.add(plane);
+    }
+
+    const geometry = new THREE.BufferGeometry();
+
     // create geometry
 
     function set_corners(N) {
@@ -16,11 +32,12 @@ function add_plane(scene, backstage, folder, param) {
         let corners = [];
 
         for(let i = 0; i < N; i++) {
-            let x = Math.cos(Math.PI * 2 * i / N);
-            let y = Math.sin(Math.PI * 2 * i / N);
+            let x = Math.cos(Math.PI * 2 * i / N + Math.PI/4);
+            let y = Math.sin(Math.PI * 2 * i / N + Math.PI/4);
             corners.push({x, y});
         }
 
+        
         for(let i = 0; i < N; i++) {
             vertices.push(0., 0., Z);
             vertices.push(corners[i].x, corners[i].y, Z);
