@@ -5,9 +5,29 @@ const frag = x => x;
 const renderer = new THREE.WebGLRenderer({alpha: false});
 const scene = new THREE.Scene();
 
-const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
+scene.background = new THREE.Color('purple');
 
-let cbs = [];
+
+const camera = new THREE.PerspectiveCamera(
+    75, window.innerWidth / window.innerHeight, 0.1, 1000
+);
+
+// const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
+
+
+const backstage = new THREE.Scene();
+const ortcamera = new THREE.OrthographicCamera(
+    -1, // left
+     1, // right
+     1, // top
+    -1, // bottom
+    -1, // near,
+     1, // far
+  );
+backstage.add(ortcamera);
+
+
+let cbs = [];  // callbacks
 
 let time = 0;
 let prev_time = (+new Date());
@@ -45,19 +65,45 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video) {
         console.error( 'MediaDevices interface not available.' );
 }
 
+// console.log(window.innerHeight, window.innerWidth);
+const rtWidth = window.innerWidth;
+const rtHeight = window.innerHeight;
+
+const renderTargets = [new THREE.WebGLRenderTarget(rtWidth, rtHeight, {
+    depthBuffer: false,
+    stencilBuffer: false,
+  }), 
+  new THREE.WebGLRenderTarget(rtWidth, rtHeight, {
+    depthBuffer: false,
+    stencilBuffer: false,
+  })];
+  
+let pass = 1;
 
 function animate() {
+
     let now = (+new Date());
     let dt = (now - prev_time) / 1000;
     prev_time = now;
     
     time += dt;
+  
     if (videoLoaded)
     cbs.forEach(cb => cb.update_uniform({time, texture0: vidtexture}));
     // console.log(time);
 
-	requestAnimationFrame(animate);
-	renderer.render(scene, camera);
+    renderer.setRenderTarget(renderTargets[pass % 2]);
+    renderer.render(backstage, ortcamera);
+    
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);
+
+    pass += 1;
+    cbs.forEach(cb => cb.update_uniform({time, backbuffer: renderTargets[(pass - 1) % 2].texture}));
+        
+    requestAnimationFrame(animate);   
+    
+        
 }
 
 function app() {
@@ -79,12 +125,10 @@ function app() {
     let param = {
         add_plane: () => {
             let folder = gui.addFolder("plane" + plane_id);
-            let plane = add_plane(scene, folder, {texture0: test_texture, plane_id});
-
             plane_id++;
-            
+            let plane = add_plane(scene, backstage, folder, {backbuffer: test_texture, plane_id});
             cbs.push(plane);
-            plane.update_material(editor.getValue());
+            plane.update_material(editor.getValue());           
         },
         loaded: false,
         plane_id: 0
@@ -151,9 +195,14 @@ function app() {
         (err) => alert("texture load error " + JSON.stringify(err))
     );
 
+    // console.log(test_texture);
+
     camera.position.z = 5;
 
+
+    // param.add_plane();
     animate();
+    
 }
 
 window.onload = app;

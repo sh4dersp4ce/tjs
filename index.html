@@ -22,7 +22,7 @@ precision mediump int;
                 
 varying vec2 _uv;
 uniform float time;
-uniform sampler2D texture0;
+uniform sampler2D backbuffer;
 uniform int plane_id;
     
 void main() {
@@ -46,7 +46,7 @@ void main() {
     }
     
     color += grid_color * grid;
-    
+    color += texture(backbuffer, uv).yyz * 0.95;
 
     gl_FragColor = vec4(color, 1.);
 }</div>
