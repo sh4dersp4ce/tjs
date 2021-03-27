@@ -7,12 +7,12 @@ const scene = new THREE.Scene();
 
 scene.background = new THREE.Color('purple');
 
-/*
+
 const camera = new THREE.PerspectiveCamera(
     75, window.innerWidth / window.innerHeight, 0.1, 1000
 );
-*/
-const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
+
+// const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
 
 
 const backstage = new THREE.Scene();

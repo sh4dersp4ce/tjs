@@ -26,8 +26,6 @@ function add_plane(scene, backstage, folder, param) {
         corner_planes.forEach(corner => corner.visible = flag);
     }
 
-    const geometry = new THREE.BufferGeometry();
-
     // create geometry
 
     function set_corners(N) {
