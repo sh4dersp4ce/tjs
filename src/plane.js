@@ -1,6 +1,20 @@
 
 function add_plane(scene, backstage, folder, param) {
-    const geometry = new THREE.BufferGeometry();
+    let projection = new THREE.Matrix4();
+    projection.set(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    );
+
+    let uniforms = {
+        time: {value: 1.0},
+        texture0: {type: "t", value: param.texture0},
+        resolution: {value: [window.innerWidth, window.innerHeight]},
+        projection: {value: projection},
+        plane_id: {value: param.plane_id},
+    };
 
     let vertices = [];
     let uv = [];
@@ -27,6 +41,7 @@ function add_plane(scene, backstage, folder, param) {
     }
 
     // create geometry
+    const plane_geometry = new THREE.BufferGeometry();
 
     function set_corners(N) {
         const Z = 0.;
@@ -53,13 +68,13 @@ function add_plane(scene, backstage, folder, param) {
             uv.push(corners[(i + 1) % N].x + 0.5, corners[(i + 1) % N].y + 0.5);
         }
 
-        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-        geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv), 2));
+        plane_geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+        plane_geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv), 2));
     }
 
     set_corners(4);
 
-    const vertex_shader = vert`
+    const plane_vertex_shader = vert`
         varying vec2 _uv;
         uniform mat4 projection;
 
@@ -70,66 +85,58 @@ function add_plane(scene, backstage, folder, param) {
             gl_Position = projection * vec4(_position, 1.0 );
             _uv = (uv - 0.5) * 0.7 + 0.5; // WAT x2
         }
-    `;
+    `; 
 
-    // create shading
-
-    const fragment_shader = frag`
+    const plane_fragment_shader = frag`
         precision mediump float;
         precision mediump int;
+
+        uniform sampler2D texture0;
 
         varying vec2 _uv;
 
         void main() {
-            gl_FragColor = vec4(vec3(0.), 1.);
+            gl_FragColor =  texture(texture0, _uv);
         }
     `;
 
-    let projection = new THREE.Matrix4();
-    projection.set(
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-    );
-
-    let uniforms = {
-        time: {value: 1.0},
-        texture0: {type: "t", value: param.texture0},
-        resolution: {value: [window.innerWidth, window.innerHeight]},
-        projection: {value: projection},
-        plane_id: {value: param.plane_id},
-    };
-
-    console.log(uniforms);
-
-    const material = new THREE.ShaderMaterial({
+    const plane_material = new THREE.ShaderMaterial({
         uniforms,
-        vertexShader: vertex_shader[0],
-        fragmentShader: fragment_shader[0],
-        depthTest: false,
-        transparent: true,
-        opacity: 0.5,
+        vertexShader: plane_vertex_shader[0],
+        fragmentShader: plane_fragment_shader[0],
     });
 
-    material.transparent = true;
+    // console.log(uniforms);
     
-    const plane = new THREE.Mesh(geometry, material);
+    const plane = new THREE.Mesh(plane_geometry, plane_material);
     plane.rotation.z = Math.PI / 4;
     plane.scale.x = 4;
     plane.scale.y = 4;
     scene.add(plane);
-    const screenplane = new THREE.PlaneGeometry(2, 2);    
-    const mat = new THREE.MeshBasicMaterial({
+
+    // backplane
+    const backplane_geometry = new THREE.PlaneGeometry(2, 2);
+
+    // trivial backplane vertex
+    const backplane_vertex_shader = vert`
+        varying vec2 _uv;
+
+        void main() {
+            gl_Position = vec4(position, 1.0 );
+            _uv = uv;
+        }
+    `;
+
+    // default fragment for non-trivial backplane
+    const backplane_material = new THREE.MeshBasicMaterial({
         color: 'red',
     });
 
     // combine our image geometry and material into a mesh
-    var mesh = new THREE.Mesh(screenplane, mat);
-    mesh.position.set(0,0,0);
+    var backplane = new THREE.Mesh(backplane_geometry, backplane_material);
+    backplane.position.set(0,0,0);
 
-    backstage.add(mesh);
-
+    backstage.add(backplane);
     
     let gui_param = {
         rotate_x: 0,
@@ -173,18 +180,21 @@ function add_plane(scene, backstage, folder, param) {
     function update_material(fragment_text) {
         const material = new THREE.ShaderMaterial({
             uniforms,
-            vertexShader: vertex_shader[0],
+            vertexShader: backplane_vertex_shader[0],
             fragmentShader: fragment_text,
+            depthTest: false,
+            transparent: true,
+            opacity: 0.5,
         });
+        material.transparent = true;
 
-        plane.material = material;
-        mesh.material = material;
-
+        backplane.material = material;
     }
 
     function update_uniform(data) {
         for(key in data) {
-            plane.material.uniforms[key].value = data[key];            
+            plane.material.uniforms[key].value = data[key];
+            backplane.material.uniforms[key].value = data[key];   
         }
     }
 
@@ -227,6 +237,11 @@ function add_plane(scene, backstage, folder, param) {
 
         update_transform();
     }
+
+    move_corner(1, 0, 0);
+    move_corner(2, 0, window.innerHeight);
+    move_corner(0, window.innerWidth, 0);
+    move_corner(3, window.innerWidth, window.innerHeight);
 
     update_transform();
 

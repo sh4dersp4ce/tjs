@@ -46,6 +46,7 @@ void main() {
     }
     
     color += grid_color * grid;
+    color += texture(texture0, uv).yyz * 0.95;
     
 
     gl_FragColor = vec4(color, 1.);
