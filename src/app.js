@@ -12,13 +12,48 @@ let cbs = [];
 let time = 0;
 let prev_time = (+new Date());
 
+let videoTex = null;
+
+const video = document.createElement('video');
+video.autoplay="";
+video.style="display:none";
+video.id="feedCam";
+
+let videoLoaded = false;
+let vidtexture = null;
+
+
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video) {
+        var constraints = {audio: false, video: true};
+
+        navigator.mediaDevices.getUserMedia( constraints ).then( function ( stream ) {
+                video.playsInline = true;
+                video.srcObject = stream;
+                video.play();
+                videoLoaded = true;
+
+                vidtexture = new THREE.VideoTexture( video );
+                console.log('vid', vidtexture);
+
+
+        } ).catch( function ( error ) {
+               console.error( 'Unable to access the camera/webcam.', error );
+
+        } );
+
+} else {
+        console.error( 'MediaDevices interface not available.' );
+}
+
+
 function animate() {
     let now = (+new Date());
     let dt = (now - prev_time) / 1000;
     prev_time = now;
     
     time += dt;
-    cbs.forEach(cb => cb.update_uniform({time}));
+    if (videoLoaded)
+    cbs.forEach(cb => cb.update_uniform({time, texture0: vidtexture}));
     // console.log(time);
 
 	requestAnimationFrame(animate);
@@ -122,3 +157,4 @@ function app() {
 }
 
 window.onload = app;
+
