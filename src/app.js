@@ -62,7 +62,7 @@ function animate() {
     renderer.render(scene, camera);
 
     pass += 1;
-    cbs.forEach(cb => cb.update_uniform({time, texture0: renderTargets[(pass - 1) % 2].texture}));
+    cbs.forEach(cb => cb.update_uniform({time, backbuffer: renderTargets[(pass - 1) % 2].texture}));
         
     requestAnimationFrame(animate);   
     
@@ -89,7 +89,7 @@ function app() {
         add_plane: () => {
             let folder = gui.addFolder("plane" + plane_id);
             plane_id++;
-            let plane = add_plane(scene, backstage, folder, {texture0: test_texture, plane_id});
+            let plane = add_plane(scene, backstage, folder, {backbuffer: test_texture, plane_id});
             cbs.push(plane);
             plane.update_material(editor.getValue());           
         },

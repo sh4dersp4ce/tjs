@@ -10,7 +10,7 @@ function add_plane(scene, backstage, folder, param) {
 
     let uniforms = {
         time: {value: 1.0},
-        texture0: {type: "t", value: param.texture0},
+        backbuffer: {type: "t", value: param.backbuffer},
         resolution: {value: [window.innerWidth, window.innerHeight]},
         projection: {value: projection},
         plane_id: {value: param.plane_id},
@@ -91,12 +91,12 @@ function add_plane(scene, backstage, folder, param) {
         precision mediump float;
         precision mediump int;
 
-        uniform sampler2D texture0;
+        uniform sampler2D backbuffer;
 
         varying vec2 _uv;
 
         void main() {
-            gl_FragColor =  texture(texture0, _uv);
+            gl_FragColor =  texture(backbuffer, _uv);
         }
     `;
 
