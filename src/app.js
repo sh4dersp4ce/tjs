@@ -32,7 +32,40 @@ let cbs = [];  // callbacks
 let time = 0;
 let prev_time = (+new Date());
 
-console.log(window.innerHeight, window.innerWidth);
+let videoTex = null;
+
+const video = document.createElement('video');
+video.autoplay="";
+video.style="display:none";
+video.id="feedCam";
+
+let videoLoaded = false;
+let vidtexture = null;
+
+
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video) {
+        var constraints = {audio: false, video: true};
+
+        navigator.mediaDevices.getUserMedia( constraints ).then( function ( stream ) {
+                video.playsInline = true;
+                video.srcObject = stream;
+                video.play();
+                videoLoaded = true;
+
+                vidtexture = new THREE.VideoTexture( video );
+                console.log('vid', vidtexture);
+
+
+        } ).catch( function ( error ) {
+               console.error( 'Unable to access the camera/webcam.', error );
+
+        } );
+
+} else {
+        console.error( 'MediaDevices interface not available.' );
+}
+
+// console.log(window.innerHeight, window.innerWidth);
 const rtWidth = window.innerWidth;
 const rtHeight = window.innerHeight;
 
@@ -54,6 +87,10 @@ function animate() {
     prev_time = now;
     
     time += dt;
+  
+    if (videoLoaded)
+    cbs.forEach(cb => cb.update_uniform({time, texture0: vidtexture}));
+    // console.log(time);
 
     renderer.setRenderTarget(renderTargets[pass % 2]);
     renderer.render(backstage, ortcamera);
@@ -169,3 +206,4 @@ function app() {
 }
 
 window.onload = app;
+
