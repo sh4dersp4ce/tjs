@@ -80,6 +80,8 @@ const renderTargets = [new THREE.WebGLRenderTarget(rtWidth, rtHeight, {
   
 let pass = 1;
 
+let pixels = new Uint8Array(rtWidth * rtHeight * 4);
+
 function animate() {
 
     let now = (+new Date());
@@ -95,6 +97,26 @@ function animate() {
 
     renderer.setRenderTarget(renderTargets[pass % 2]);
     renderer.render(backstage, ortcamera);
+    renderer.readRenderTargetPixels(
+        renderTargets[pass % 2],
+        0, 0,
+        renderTargets[pass % 2].width, renderTargets[pass % 2].height,
+        pixels
+    );
+
+    let white = 0;
+    for(let i = 0; i < rtWidth * rtHeight; i++) {
+        let value = 0;
+        for(let color = 0; color < 3; color++) {
+            value += pixels[i * 4 + color];
+        }
+        if(value > 255 * 2.9) {
+            white += value / 255 / 3;
+        }
+    }
+    if(time % 1 < 0.1) {
+        console.log(white);
+    }
     
     renderer.setRenderTarget(null);
     renderer.render(scene, camera);
