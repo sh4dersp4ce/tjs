@@ -105,7 +105,7 @@ void main() {
     color += texture(texture1, uv).xyz * 0.1;
     
     color += 0.5 + color_sobel_x(uv, texture1) * vec3(1., 0., 0.);
-    // color += 0.5 + color_sobel_y(uv, texture1) * vec3(0., 1., 0.);
+    color += color_sobel_y(uv, texture1) * vec3(0., 1., 0.);
 
     gl_FragColor = vec4(color, 1.);
 }
