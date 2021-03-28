@@ -7,6 +7,7 @@ uniform sampler2D backbuffer;
 uniform sampler2D camera;
 uniform sampler2D texture0;
 uniform sampler2D texture1;
+uniform sampler2D texture2;
 uniform int plane_id;
 uniform vec2 resolution;
 
@@ -83,13 +84,47 @@ float color_sobel_y(vec2 p, sampler2D tex) {
     }
 }
 
+float minmax(vec2 p, sampler2D tex, vec3 mask) {
+    float min_value = 1.;
+    float max_value = -1.;
+    float weight = 0.;
+
+    for (int x=0; x<3; x++) {
+        for (int y=0; y<3; y++) {
+            vec2 dp = vec2(x-1, y-1);
+            vec3 value = texture2D(tex, (p + dp / resolution)).xyz * mask;
+
+            float svalue = 0.;
+            for(int i = 0; i < 3; i++) {
+                svalue += value[i];
+            }
+
+            if(svalue < 0.01) continue;
+
+            if(svalue < min_value) {
+                min_value = svalue;
+            }
+
+            if(svalue > max_value) {
+                max_value = svalue;
+            }
+
+            weight += svalue;
+        }
+    }
+
+    if(weight > 0.1) {
+        return abs(min_value - max_value);
+    } else {
+        return 0.;
+    }
+}
+
+
 void main() {
     vec2 uv = _uv;
     
     vec3 color = vec3(0.0);
-    
-    
-    // color += length(grad) * 10. * vec3(1., 1., 1.);
     
     float c0 = circle((uv - .5) * vec2(1, .6), .2);
     
@@ -113,43 +148,37 @@ void main() {
             color += step(0.9, fract(uv.y * 10. + 0.1)) * vec3(0., 0., 1.);
         }
     }
-    // grid += clamp(cos(uv.y * 200.) * 2. - 0.1, 0., 1.);
-    
-    
-    // vec3 grid_color = vec3(1., 0., 0.);
-    /*
-    if(plane_id == 0) {
-        grid_color.r = 1.;
-    } else if(plane_id == 1) {
-        grid_color.g = 1.;
-    } else if(plane_id == 2) {
-        grid_color.b = 1.;
-    }
-    */
-    
-    // color += grid_color * grid;
+
+    // face burn
     // color += texture(backbuffer, uv - vec2(0.0010, 0.)).xzy * vec3(0., 1., 1.) * 0.95;
     // vec3 face = smoothstep(0.15, 0.35, texture(camera, vec2(1.-uv.x, uv.y)).xyz);
     // color += step(0.5, face.r - (face.b + face.g)/2.);
-    
-    // color += texture(camera, uv).xyz * 0.8;
+    #define samp texture1
+
+    color += texture(samp, uv).xyz * 0.1;
     
     // color += 0.5 + color_sobel_x(uv, texture1) * vec3(1., 0., 0.);
     // color += color_sobel_y(uv, texture1) * vec3(0., 1., 0.);
 
-    vec2 shakal = vec2(1., .75) * 1.3 ;
+    // vec2 shakal = vec2(1., .75) * 1.3 ;
+    vec2 shakal = vec2(1.);
+
     vec2 grad = vec2(
-        color_sobel_x(uv * shakal, camera),
-        color_sobel_y(uv * shakal, camera)
+        color_sobel_x(uv * shakal, samp),
+        color_sobel_y(uv * shakal, samp)
     );
 
     const float PI = acos(-1.);
 
-    // color += length(grad) > 0.0
-    //     ? atan(grad.y, grad.x)/(2. * PI) * vec3(1.) * .8 + .2
-    //     : vec3(0.); // length(grad) * vec3(1., 0., 0.);
+    // color += length(grad) * vec3(0., 1., 0.);
+
+    color += length(grad) > 0.1
+        ? (atan(grad.y, grad.x)/PI * .4 + .6) * vec3(0., 1., 0.)
+        : vec3(0.); // length(grad) * vec3(1., 0., 0.);
+
+    color += minmax(uv, backbuffer, vec3(-0.5, 1., -0.5)) * vec3(1., 1., 1.) * 10.;
     
-    gl_FragColor = vec4(color, 1.) + length(grad) * 10.* vec4(0, 1, 0, 1) ;
+    gl_FragColor = vec4(color, 1.);
     
 }
 

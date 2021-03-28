@@ -145,6 +145,7 @@ function app() {
                 plane_id: {value: plane_id},
                 texture0: {type: "t", value: null},
                 texture1: {type: "t", value: null},
+                texture2: {type: "t", value: null},
             };
 
             let plane = add_plane(scene, backstage, folder, uniforms);
@@ -222,6 +223,14 @@ function app() {
     texture_loader.load("assets/frame.jpg",
         (texture) => {
             cbs.forEach(cb => cb.update_uniform({texture1: texture}));
+        },
+        null,
+        (err) => alert("texture load error " + JSON.stringify(err))
+    );
+    
+    texture_loader.load("assets/frame_c.jpg",
+        (texture) => {
+            cbs.forEach(cb => cb.update_uniform({texture2: texture}));
         },
         null,
         (err) => alert("texture load error " + JSON.stringify(err))
