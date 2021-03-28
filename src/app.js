@@ -113,6 +113,8 @@ function app() {
     editor.session.setMode("ace/mode/glsl");
     editor.setOption("highlightActiveLine", true);
     editor.session.addMarker(new ace.Range(0, 0, 1000, 1000), "Highlight", "text", false);
+    editor.setShowPrintMargin(false);
+
 
     var get_query = {}
     window.location.search
