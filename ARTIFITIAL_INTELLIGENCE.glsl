@@ -99,7 +99,9 @@ float minmax(vec2 p, sampler2D tex, vec3 mask) {
                 svalue += value[i];
             }
 
-            if(svalue < 0.01) continue;
+            if(svalue < 0.3) continue;
+
+            svalue = value.g;
 
             if(svalue < min_value) {
                 min_value = svalue;
@@ -113,7 +115,7 @@ float minmax(vec2 p, sampler2D tex, vec3 mask) {
         }
     }
 
-    if(weight > 0.1) {
+    if(weight > 0.0) {
         return abs(min_value - max_value);
     } else {
         return 0.;
@@ -172,11 +174,11 @@ void main() {
 
     // color += length(grad) * vec3(0., 1., 0.);
 
-    color += length(grad) > 0.1
-        ? (atan(grad.y, grad.x)/PI * .4 + .6) * vec3(0., 1., 0.)
-        : vec3(0.); // length(grad) * vec3(1., 0., 0.);
+    if(length(grad) > 0.1) {
+        color = (atan(grad.y, grad.x)/PI * .4 + .6) * vec3(0., 1., 0.);
+    }
 
-    color += minmax(uv, backbuffer, vec3(-0.5, 1., -0.5)) * vec3(1., 1., 1.) * 10.;
+    color += step(0.2, minmax(uv - vec2(4./resolution.x), backbuffer, vec3(-0.5, 1., -0.5))) * vec3(1., 1., 1.);
     
     gl_FragColor = vec4(color, 1.);
     
