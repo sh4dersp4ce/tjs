@@ -89,7 +89,7 @@ function animate() {
     time += dt;
   
     if (videoLoaded)
-    cbs.forEach(cb => cb.update_uniform({time, texture0: vidtexture}));
+    cbs.forEach(cb => cb.update_uniform({time, camera: vidtexture}));
     // console.log(time);
 
     renderer.setRenderTarget(renderTargets[pass % 2]);
@@ -102,8 +102,6 @@ function animate() {
     cbs.forEach(cb => cb.update_uniform({time, backbuffer: renderTargets[(pass - 1) % 2].texture}));
         
     requestAnimationFrame(animate);   
-    
-        
 }
 
 function app() {
@@ -120,13 +118,22 @@ function app() {
 
     let plane_id = 0;
 
-    let test_texture = null;
-
     let param = {
         add_plane: () => {
             let folder = gui.addFolder("plane" + plane_id);
             plane_id++;
-            let plane = add_plane(scene, backstage, folder, {backbuffer: test_texture, plane_id});
+
+            let uniforms = {
+                time: {value: 1.0},
+                backbuffer: {type: "t", value: null},
+                camera: {type: "t", value: null},
+                resolution: {value: [window.innerWidth, window.innerHeight]},
+                plane_id: {value: plane_id},
+                texture0: {type: "t", value: null},
+                texture1: {type: "t", value: null},
+            };
+
+            let plane = add_plane(scene, backstage, folder, uniforms);
             cbs.push(plane);
             plane.update_material(editor.getValue());           
         },
@@ -184,12 +191,21 @@ function app() {
         .min(0).max(5).step(1)
         .listen().onChange(value => param.plane_id = value);
 
+    param.add_plane();
+
     const texture_loader = new THREE.TextureLoader();
     texture_loader.load("assets/test.jpg",
         (texture) => {
-            test_texture = texture;
-            gui.add(param, "loaded");
-            param.add_plane();
+            console.log("update backbuffer texture", cbs);
+            cbs.forEach(cb => cb.update_uniform({texture0: texture}));
+        },
+        null,
+        (err) => alert("texture load error " + JSON.stringify(err))
+    );
+
+    texture_loader.load("assets/frame.jpg",
+        (texture) => {
+            cbs.forEach(cb => cb.update_uniform({texture1: texture}));
         },
         null,
         (err) => alert("texture load error " + JSON.stringify(err))

@@ -1,5 +1,5 @@
 
-function add_plane(scene, backstage, folder, param) {
+function add_plane(scene, backstage, folder, uniforms) {
     let projection = new THREE.Matrix4();
     projection.set(
         1, 0, 0, 0,
@@ -8,13 +8,7 @@ function add_plane(scene, backstage, folder, param) {
         0, 0, 0, 1
     );
 
-    let uniforms = {
-        time: {value: 1.0},
-        backbuffer: {type: "t", value: param.backbuffer},
-        resolution: {value: [window.innerWidth, window.innerHeight]},
-        projection: {value: projection},
-        plane_id: {value: param.plane_id},
-    };
+    uniforms.projection = {value: projection};
 
     let vertices = [];
     let uv = [];
