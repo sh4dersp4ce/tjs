@@ -23,9 +23,9 @@ float color_discriminator(vec3 c, vec3 color0, vec3 color1) {
     }
     
     if(l0 > l1) {
-        return clamp(l0, 0., 1.);
+        return l0;
     } else {
-        return -clamp(l1, 0., 1.);
+        return -l1;
     }
 }
 
@@ -56,7 +56,7 @@ float color_sobel_x(vec2 p, sampler2D tex) {
 }
 
 float color_sobel_y(vec2 p, sampler2D tex) {
-    const float THRESHOLD = 0.3;
+    const float THRESHOLD = 0.1;
     
     float up = 0.;
     float down = 0.;
@@ -80,15 +80,17 @@ float color_sobel_y(vec2 p, sampler2D tex) {
 void main() {
     vec2 uv = _uv;
     
-    vec3 color = vec3(0.);
+    vec3 color = vec3(0.6);
     
     float grid = 0.;
     
-    grid += clamp(sin(uv.x * 200. + time * 10.) - 0.5, 0., 1.);
-    grid += clamp(cos(uv.y * 200. + sin(time) * 10.) - 0.5, 0., 1.);
+    color += step(0.9, fract(uv.x * 10.)) * vec3(1., 0., 0.);
+    color += step(0.9, fract(uv.x * 10. + 0.1)) * vec3(0., 0., 1.);
+    // grid += clamp(cos(uv.y * 200.) * 2. - 0.1, 0., 1.);
     
     
-    vec3 grid_color = vec3(0.);
+    vec3 grid_color = vec3(1., 0., 0.);
+    /*
     if(plane_id == 0) {
         grid_color.r = 1.;
     } else if(plane_id == 1) {
@@ -96,16 +98,31 @@ void main() {
     } else if(plane_id == 2) {
         grid_color.b = 1.;
     }
+    */
     
     // color += grid_color * grid;
     // color += texture(backbuffer, uv - vec2(0.0010, 0.)).xzy * vec3(0., 1., 1.) * 0.95;
     // vec3 face = smoothstep(0.15, 0.35, texture(camera, vec2(1.-uv.x, uv.y)).xyz);
     // color += step(0.5, face.r - (face.b + face.g)/2.);
     
-    color += texture(texture1, uv).xyz * 0.1;
+    // color += texture(camera, uv).xyz * 0.8;
     
-    color += 0.5 + color_sobel_x(uv, texture1) * vec3(1., 0., 0.);
-    color += color_sobel_y(uv, texture1) * vec3(0., 1., 0.);
+    // color += 0.5 + color_sobel_x(uv, texture1) * vec3(1., 0., 0.);
+    // color += color_sobel_y(uv, texture1) * vec3(0., 1., 0.);
+
+    vec2 grad = vec2(
+        color_sobel_x(uv, camera),
+        color_sobel_y(uv, camera)
+    );
+
+    const float PI = acos(-1.);
+
+     color += length(grad) * 10. * vec3(1., 1., 1.);
+    /*
+    color += length(grad) > 0.0
+        ? atan(grad.x, grad.y)/(2. * PI) * vec3(1., 0., 0.)
+        : vec3(0.); // length(grad) * vec3(1., 0., 0.);
+    */
 
     gl_FragColor = vec4(color, 1.);
 }
