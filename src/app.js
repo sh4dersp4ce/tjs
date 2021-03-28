@@ -88,8 +88,9 @@ function animate() {
     
     time += dt;
   
-    if (videoLoaded)
-    cbs.forEach(cb => cb.update_uniform({time, camera: vidtexture}));
+    if (videoLoaded) {
+        cbs.forEach(cb => cb.update_uniform({time, camera: vidtexture}));
+    }
     // console.log(time);
 
     renderer.setRenderTarget(renderTargets[pass % 2]);
@@ -112,6 +113,17 @@ function app() {
     editor.session.setMode("ace/mode/glsl");
     editor.setOption("highlightActiveLine", true);
     editor.session.addMarker(new ace.Range(0, 0, 1000, 1000), "Highlight", "text", false);
+
+    var get_query = {}
+    window.location.search
+        .substr(1)
+        .split("&")
+        .forEach((item) => {get_query[item.split("=")[0]] = item.split("=")[1]});
+    
+    fetch('/' + get_query.src)
+    .then((response) => {
+        response.text().then(text => editor.setValue(text));
+    });
 
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
@@ -143,7 +155,9 @@ function app() {
 
     let corner_id = null;
 
-    let move_corners = "edit";
+    let move_corners = "view";
+    dat.GUI.toggleHide();
+    editor.container.style.visibility = (move_corners == "edit") ? "visible" : "hidden";
 
     document.addEventListener('keydown', (event) => {
         if(event.key === "F9") {
