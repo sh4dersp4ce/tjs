@@ -80,12 +80,16 @@ float color_sobel_y(vec2 p, sampler2D tex) {
 void main() {
     vec2 uv = _uv;
     
-    vec3 color = vec3(0.6);
+    vec3 color = vec3(0.0);
     
     float grid = 0.;
     
     color += step(0.9, fract(uv.x * 10.)) * vec3(1., 0., 0.);
     color += step(0.9, fract(uv.x * 10. + 0.1)) * vec3(0., 0., 1.);
+    if(length(color) < 0.1) {
+        color += step(0.9, fract(uv.y * 10.)) * vec3(1., 0., 0.);
+        color += step(0.9, fract(uv.y * 10. + 0.1)) * vec3(0., 0., 1.);
+    }
     // grid += clamp(cos(uv.y * 200.) * 2. - 0.1, 0., 1.);
     
     
@@ -105,7 +109,7 @@ void main() {
     // vec3 face = smoothstep(0.15, 0.35, texture(camera, vec2(1.-uv.x, uv.y)).xyz);
     // color += step(0.5, face.r - (face.b + face.g)/2.);
     
-    // color += texture(camera, uv).xyz * 0.8;
+    color += texture(camera, uv).xyz * 0.8;
     
     // color += 0.5 + color_sobel_x(uv, texture1) * vec3(1., 0., 0.);
     // color += color_sobel_y(uv, texture1) * vec3(0., 1., 0.);
@@ -117,7 +121,7 @@ void main() {
 
     const float PI = acos(-1.);
 
-     color += length(grad) * 10. * vec3(1., 1., 1.);
+    color += length(grad) * 10. * vec3(1., 1., 1.);
     /*
     color += length(grad) > 0.0
         ? atan(grad.x, grad.y)/(2. * PI) * vec3(1., 0., 0.)
