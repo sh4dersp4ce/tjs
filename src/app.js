@@ -158,22 +158,20 @@ function app() {
 
     let corner_id = null;
 
-    let move_corners = "view";
+    let move_corners = "edit";
     dat.GUI.toggleHide();
     editor.container.style.visibility = (move_corners == "edit") ? "visible" : "hidden";
 
     document.addEventListener('keydown', (event) => {
         if(event.key === "F9") {
-            if(move_corners == "view") {
-                move_corners = "edit";
-                dat.GUI.toggleHide();
-            }
-            else if(move_corners == "edit") {
+            if(move_corners == "edit") {
                 move_corners = "map";
+                // dat.GUI.toggleHide();
+
             }
             else if(move_corners == "map") {
-                dat.GUI.toggleHide();
-                move_corners = "view";
+                // dat.GUI.toggleHide();
+                move_corners = "edit";
             }
 
             cbs[param.plane_id].set_visible(move_corners === "map");
