@@ -121,9 +121,13 @@ function app() {
         .split("&")
         .forEach((item) => {get_query[item.split("=")[0]] = item.split("=")[1]});
     
-    fetch('/' + get_query.src)
+    fetch(get_query.src !== undefined ? '/' + get_query.src : "/default.glsl")
     .then((response) => {
-        response.text().then(text => editor.setValue(text));
+        if(response.ok) {
+            response.text().then(text => editor.setValue(text));
+        } else {
+            editor.setValue("");
+        }
     });
 
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -219,6 +223,7 @@ function app() {
         (err) => alert("texture load error " + JSON.stringify(err))
     );
 
+    /*
     texture_loader.load("assets/frame.jpg",
         (texture) => {
             cbs.forEach(cb => cb.update_uniform({texture1: texture}));
@@ -226,14 +231,7 @@ function app() {
         null,
         (err) => alert("texture load error " + JSON.stringify(err))
     );
-    
-    texture_loader.load("assets/frame_c.jpg",
-        (texture) => {
-            cbs.forEach(cb => cb.update_uniform({texture2: texture}));
-        },
-        null,
-        (err) => alert("texture load error " + JSON.stringify(err))
-    );
+    */
 
     // console.log(test_texture);
 
