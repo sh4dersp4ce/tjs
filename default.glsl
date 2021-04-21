@@ -10,6 +10,7 @@ uniform sampler2D texture1;
 uniform sampler2D texture2;
 uniform int plane_id;
 uniform vec2 resolution;
+uniform vec2 mouse;
 
 void main() {
     vec2 uv = _uv;

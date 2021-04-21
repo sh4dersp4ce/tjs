@@ -145,6 +145,7 @@ function app() {
                 backbuffer: {type: "t", value: null},
                 camera: {type: "t", value: null},
                 resolution: {value: [window.innerWidth, window.innerHeight]},
+                mouse: {value: [0., 0.]},
                 plane_id: {value: plane_id},
                 texture0: {type: "t", value: null},
                 texture1: {type: "t", value: null},
@@ -162,6 +163,8 @@ function app() {
     let corner_id = null;
 
     let move_corners = "edit";
+    let read_mouse = false;
+
     dat.GUI.toggleHide();
     editor.container.style.visibility = (move_corners == "edit") ? "visible" : "hidden";
 
@@ -185,6 +188,17 @@ function app() {
 
             editor.container.style.visibility = (move_corners == "edit") ? "visible" : "hidden";
         }
+
+        if (event.key === "F10") {
+            if (read_mouse == true)
+                read_mouse = false;
+            else
+                read_mouse = true; 
+
+        }
+
+        
+
     });
 
     window.addEventListener('mousedown', (evt) => {
@@ -196,6 +210,12 @@ function app() {
         }
     });
     window.addEventListener('mousemove', (evt) => {
+        let mousex = (evt.pageX / window.innerWidth) * 2. -1.;
+        let mousey = (1 - evt.pageY / window.innerHeight) * 2. -1.;
+
+        if (read_mouse == true)
+            cbs.forEach(cb => cb.update_uniform({mouse: [mousex, mousey]}));
+
         if(cbs.length > 0 && (move_corners === "map")) {
             cbs[param.plane_id].move_corner(corner_id, evt.pageX, evt.pageY);
         }
