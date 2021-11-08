@@ -31,6 +31,7 @@ let cbs = [];  // callbacks
 
 let time = 0;
 let prev_time = (+new Date());
+let oscin = 0.;
 
 let videoTex = null;
 
@@ -43,7 +44,7 @@ let videoLoaded = false;
 let vidtexture = null;
 
 
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video) {
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video && false) {
         var constraints = {audio: false, video: true};
 
         navigator.mediaDevices.getUserMedia( constraints ).then( function ( stream ) {
@@ -100,7 +101,7 @@ function animate() {
     renderer.render(scene, camera);
 
     pass += 1;
-    cbs.forEach(cb => cb.update_uniform({time, backbuffer: renderTargets[(pass - 1) % 2].texture}));
+    cbs.forEach(cb => cb.update_uniform({time, oscin, backbuffer: renderTargets[(pass - 1) % 2].texture}));
         
     requestAnimationFrame(animate);   
 }
@@ -149,6 +150,8 @@ function app() {
                 texture0: {type: "t", value: null},
                 texture1: {type: "t", value: null},
                 texture2: {type: "t", value: null},
+
+                oscin: {value: 1},
             };
 
             let plane = add_plane(scene, backstage, folder, uniforms);
