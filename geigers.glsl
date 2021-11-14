@@ -81,7 +81,7 @@ void main() {
 
     pPos /= res;
     gl_FragColor = vec4(pDir, pPos, 1.);
-    float eps = .005 * (sin(time * 10.) + 1.);
+    float eps = .005 * (sin(time * 10.) + 1.) / 4.;
     gl_FragColor.b = (uv.x > angle - eps )&& uv.x < (angle + eps ) ? 40. * pow( uv.y, 3.) * emit : 0.;
     gl_FragColor.b *= uv.y < .9 ? 1. : 0.;
     

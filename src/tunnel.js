@@ -60,6 +60,7 @@ function add_tunnel(scene, backstage, folder, uniforms) {
             // gl_FragColor.a = fract(_uv.x * 16.);
             gl_FragColor.a = 1.;
             float green = gl_FragColor.b;
+            gl_FragColor.r = 2. * green;
 
 
             gl_FragColor.xyz *= (1. - _uv.y * 1.2 );
@@ -71,8 +72,12 @@ function add_tunnel(scene, backstage, folder, uniforms) {
             // gl_FragColor.x = (conv(_uv, backbuffer, laplace) * 30.).z;
             // gl_FragColor.yxz = (conv(_uv, backbuffer, laplace) * 30.).yxz;
 
+            // organge is 2 * r, g
+            // gl_FragColor.b *= green > .5 ? .0 : 1.;
+            gl_FragColor.b *= green > .5 ? 0. : 1.;
+            gl_FragColor.g *= green > .5 ? .5 : 1.;
 
-            gl_FragColor.rb *= green > .5 ? 0. : 1.;
+
 
         }
     `;
