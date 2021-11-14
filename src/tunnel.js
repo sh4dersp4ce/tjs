@@ -30,19 +30,48 @@ function add_tunnel(scene, backstage, folder, uniforms) {
         precision mediump int;
 
         uniform sampler2D backbuffer;
+        uniform vec2 resolution;
 
         varying vec2 _uv;
 
+
+
+        mat3 laplace = mat3(0, 1, 0, 
+                            1, -4, 1,
+                            0, 1, 0) / 8.;
+
+
+        vec3 conv(vec2 p, sampler2D tex, mat3 fil) {
+            vec3 l = vec3(0.);
+            for (int y=0; y<3; y++)
+                for (int x = 0; x < 3; x++) {
+        
+                    l += fil[x][y] * texture2D(tex, p + vec2(x - 1, y - 1) / resolution ).xyz ;
+            
+                }
+            return l;
+        }
+
         void main() {
             gl_FragColor =  texture(backbuffer, _uv) * .9;;
+
+            gl_FragColor.xz = (conv(_uv, backbuffer, laplace) * 60.).xz;
+
             // gl_FragColor.a = fract(_uv.x * 16.);
             gl_FragColor.a = 1.;
             float green = gl_FragColor.b;
 
+
             gl_FragColor.xyz *= (1. - _uv.y * 1.2 );
-            gl_FragColor.g *= gl_FragColor.g > .5 ? 0. : 1.;
+
+            gl_FragColor.rgb *= gl_FragColor.g > .5 ? _uv.y * _uv.y : 1.;
+            gl_FragColor.rgb *= _uv.y < .1 ? 0. : 1.;
 
             gl_FragColor.rgb = vec3(dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114)));
+            // gl_FragColor.x = (conv(_uv, backbuffer, laplace) * 30.).z;
+            // gl_FragColor.yxz = (conv(_uv, backbuffer, laplace) * 30.).yxz;
+
+
             gl_FragColor.rb *= green > .5 ? 0. : 1.;
 
         }
@@ -68,7 +97,7 @@ function add_tunnel(scene, backstage, folder, uniforms) {
 
 
 const tunnel = new THREE.Mesh(tunnel_geometry, tunnel_material);
-tunnel.position.z = - 45;
+tunnel.position.z = - 67;
 tunnel.rotation.x =  - Math.PI / 2;  
 tunnel.rotation.y = Math.PI;  
 
