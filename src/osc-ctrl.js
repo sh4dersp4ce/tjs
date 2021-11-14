@@ -1,11 +1,10 @@
-var MAX_PROTOCOL_MESSAGES = 50;
-var osc;
-var messageIndex = 0;
-var sendIndex = 0;
-var messageVals = [false, false, false, false, false, false, false, false, false, false];
-var oscOnScreen = false;
+let MAX_PROTOCOL_MESSAGES = 50;
+let osc;
+let messageIndex = 0;
+let sendIndex = 0;
+let messageVals = [false, false, false, false, false, false, false, false, false, false];
+let oscOnScreen = false;
 
-var oscM = [null, null, null, null, null, null, null, null, null, null];
 
 function initOSC() {
 
@@ -14,8 +13,8 @@ function initOSC() {
     });
     console.log("OSC", osc);
 
-    var address = "127.0.0.1";
-    var port = 8000;
+    let address = "127.0.0.1";
+    let port = 8000;
 
     osc.connect(address, port);
     
@@ -24,29 +23,16 @@ function initOSC() {
 function enableOSCMessage(whom) 
 {
 
-    // var m = $("#inOSCtext" + whom).val();
-    var m = '/ch/1';
+    osc.on('/angle/1', function(cMessage) {angle_goal = cMessage.args[0];
+        emit = 1;
+});
 
-    var listener = osc.on(m, function(cMessage) 
-	{
-        // console.log('message', cMessage); 
-        oscin = cMessage.args[0];
-        // console.log('oscint', oscint);
-        if (cMessage.typesString == "ffff") {
-            
-            oscM[whom].args = [cMessage.args[0].toFixed(3), cMessage.args[1].toFixed(3),
-            			  cMessage.args[2].toFixed(3), cMessage.args[3].toFixed(3)];
-        }
 
-    });
+    osc.on('/ch/1', function(cMessage) {osc1 = [cMessage.args[0], cMessage.args[1], cMessage.args[2], cMessage.args[3]];});
+    osc.on('/ch/2', function(cMessage) {osc2 = [cMessage.args[0], cMessage.args[1], cMessage.args[2], cMessage.args[3]];});
+    osc.on('/ch/3', function(cMessage) {osc3 = [cMessage.args[0], cMessage.args[1], cMessage.args[2], cMessage.args[3]];});
+    osc.on('/ch/4', function(cMessage) {osc4 = [cMessage.args[0], cMessage.args[1], cMessage.args[2], cMessage.args[3]];});
 
-    
-	oscM[whom] = {};
-	oscM[whom].listener = listener;
-	oscM[whom].args = [0.0,0.0,0.0,0.0];
-	oscM[whom].uniName = 'oscin' + whom
-    createOSCUniforms();
-    // setShaderFromEditor();
 }
 
 function disableOSCMessage(whom) 
@@ -62,16 +48,5 @@ function disableOSCMessage(whom)
     oscM[whom] = null;
 }
 
-
-function createOSCUniforms() {
-    mOSCStr = "";
-    for (var i = 0; i < oscM.length; i++) {
-        var inp = oscM[i];
-
-        if (inp !== null) {
-            // mOSCStr += "uniform vec4 " + $('#inOSCUniform'+i).val() + ";\n";
-            // mOSCStr += "uniform vec4 " + oscM[i].uniName + ";\n";
-            mOSCStr = "uniform vec4 analogInput;";
-        }
-    }
-}
+initOSC();
+enableOSCMessage();

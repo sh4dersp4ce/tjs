@@ -73,17 +73,23 @@ function add_plane(scene, backstage, folder, uniforms) {
         uniform mat4 projection;
 
         void main() {
+            gl_PointSize = 8.0;
             vec3 _position = position * 0.355; // WAT
             _position = _position + 0.25;
 
             gl_Position = projection * vec4(_position, 1.0 );
+            _uv = fract(uv * 8.);
             _uv = (uv - 0.5) * 0.7 + 0.5; // WAT x2
+            // _uv = uv;
+            // _uv *= 4.;
+
+            // _uv = fract(_uv * 4.);
         }
     `; 
 
     const plane_fragment_shader = frag`
-        precision mediump float;
-        precision mediump int;
+        precision highp float;
+        precision highp int;
 
         uniform sampler2D backbuffer;
 
@@ -91,6 +97,9 @@ function add_plane(scene, backstage, folder, uniforms) {
 
         void main() {
             gl_FragColor =  texture(backbuffer, _uv);
+            // gl_FragColor.a = 1.;
+            // gl_FragColor.g = 0.;
+            // gl_FragColor.r = b.;
         }
     `;
 
@@ -98,6 +107,7 @@ function add_plane(scene, backstage, folder, uniforms) {
         uniforms,
         vertexShader: plane_vertex_shader[0],
         fragmentShader: plane_fragment_shader[0],
+
     });
 
     // console.log(uniforms);
@@ -123,11 +133,11 @@ function add_plane(scene, backstage, folder, uniforms) {
 
     // default fragment for non-trivial backplane
     const backplane_material = new THREE.MeshBasicMaterial({
-        color: 'red',
+        color: 'black',
     });
 
     // combine our image geometry and material into a mesh
-    var backplane = new THREE.Mesh(backplane_geometry, backplane_material);
+    const backplane = new THREE.Mesh(backplane_geometry, backplane_material);
     backplane.position.set(0,0,0);
 
     backstage.add(backplane);

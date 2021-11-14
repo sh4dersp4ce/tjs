@@ -2,18 +2,17 @@ const glsl = x => x;
 const vert = x => x;
 const frag = x => x;
 
-const renderer = new THREE.WebGLRenderer({alpha: false});
+const renderer = new THREE.WebGLRenderer({alpha: true});
+
 const scene = new THREE.Scene();
 
 scene.background = new THREE.Color('black');
 
 
+
 const camera = new THREE.PerspectiveCamera(
     75, window.innerWidth / window.innerHeight, 0.1, 1000
 );
-
-// const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
-
 
 const backstage = new THREE.Scene();
 const ortcamera = new THREE.OrthographicCamera(
@@ -31,7 +30,11 @@ let cbs = [];  // callbacks
 
 let time = 0;
 let prev_time = (+new Date());
-let oscin = 0.;
+let osc1 = osc2 = osc3 = osc4 = [0, 0, 0, 0];
+
+let angle_goal = 0.;
+let emit = 0.;
+
 
 let videoTex = null;
 
@@ -60,26 +63,34 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video && fa
         } ).catch( function ( error ) {
                console.error( 'Unable to access the camera/webcam.', error );
 
-        } );
+        } )
 
 } else {
         console.error( 'MediaDevices interface not available.' );
 }
 
 // console.log(window.innerHeight, window.innerWidth);
-const rtWidth = window.innerWidth;
-const rtHeight = window.innerHeight;
+const rtWidth = window.innerWidth  /4.;
+const rtHeight = window.innerHeight  /4.;
 
-const renderTargets = [new THREE.WebGLRenderTarget(rtWidth, rtHeight, {
-    depthBuffer: false,
-    stencilBuffer: false,
-  }), 
-  new THREE.WebGLRenderTarget(rtWidth, rtHeight, {
-    depthBuffer: false,
-    stencilBuffer: false,
-  })];
-  
+function mkrt () {
+    return new THREE.WebGLRenderTarget(rtWidth, rtHeight, {
+        depthBuffer: false,
+        stencilBuffer: false,
+        magFilter: THREE.NearestFilter,
+        minFilter: THREE.NearestFilter,
+        format: THREE.RGBAFormat, 
+        // type: THREE.FloatType
+        
+      })
+}
+
+const renderTargets = [mkrt(), mkrt()];
+    
+ 
 let pass = 1;
+
+let angle = 0.;
 
 function animate() {
 
@@ -88,11 +99,31 @@ function animate() {
     prev_time = now;
     
     time += dt;
-  
-    if (videoLoaded) {
-        cbs.forEach(cb => cb.update_uniform({time, camera: vidtexture}));
+
+    let sign = 1.;
+
+    if (Math.random() > .5) {
+            sign = -1;
     }
-    // console.log(time);
+    let da = .01 + (Math.random() / 200. * sign);
+    if (angle > angle_goal) {
+        angle -= da;
+    }
+    else {
+        angle += da;
+    }
+
+    angle %= 1.;
+
+
+    if (angle > angle_goal) {
+        angle -= da;
+    }
+    else {
+        angle += da;
+    }
+
+    angle %= 1.;
 
     renderer.setRenderTarget(renderTargets[pass % 2]);
     renderer.render(backstage, ortcamera);
@@ -101,7 +132,12 @@ function animate() {
     renderer.render(scene, camera);
 
     pass += 1;
-    cbs.forEach(cb => cb.update_uniform({time, oscin, backbuffer: renderTargets[(pass - 1) % 2].texture}));
+        
+    cbs.forEach(cb => cb.update_uniform({time, osc1, osc2, osc3, osc4, angle, emit,
+        backbuffer: renderTargets[(pass - 1) % 2].texture}));
+    if (emit > 0.) {
+        emit -= .3;
+    };
         
     requestAnimationFrame(animate);   
 }
@@ -122,7 +158,7 @@ function app() {
         .split("&")
         .forEach((item) => {get_query[item.split("=")[0]] = item.split("=")[1]});
     
-    fetch(get_query.src !== undefined ? '/' + get_query.src : "/default.glsl")
+    fetch(get_query.src !== undefined ? '/' + get_query.src : "/geigers.glsl")
     .then((response) => {
         if(response.ok) {
             response.text().then(text => editor.setValue(text));
@@ -131,7 +167,9 @@ function app() {
         }
     });
 
+    // renderer.setPixelRatio(8);
     renderer.setSize(window.innerWidth, window.innerHeight);
+    
     document.body.appendChild(renderer.domElement);
 
     let plane_id = 0;
@@ -145,18 +183,29 @@ function app() {
                 time: {value: 1.0},
                 backbuffer: {type: "t", value: null},
                 camera: {type: "t", value: null},
-                resolution: {value: [window.innerWidth, window.innerHeight]},
+                // resolution: {value: [window.innerWidth, window.innerHeight]},
+                resolution: {value: [rtWidth, rtHeight]},
                 plane_id: {value: plane_id},
                 texture0: {type: "t", value: null},
                 texture1: {type: "t", value: null},
                 texture2: {type: "t", value: null},
 
-                oscin: {value: 1},
+                osc1: {value: [0, 0, 0, 0]},
+                osc2: {value: [0, 0, 0, 0]},
+                osc3: {value: [0, 0, 0, 0]},
+                osc4: {value: [0, 0, 0, 0]},
+
+                angle: {value: 0.},
+                emit: {value: 0.}
             };
 
-            let plane = add_plane(scene, backstage, folder, uniforms);
-            cbs.push(plane);
-            plane.update_material(editor.getValue());           
+            // let plane = add_plane(scene, backstage, folder, uniforms);
+            // cbs.push(plane);
+            // plane.update_material(editor.getValue());     
+
+            let tunnel = add_tunnel(scene, backstage, folder, uniforms);
+            cbs.push(tunnel);
+            tunnel.update_material(editor.getValue()); 
         },
         loaded: false,
         plane_id: 0
@@ -170,6 +219,7 @@ function app() {
 
     document.addEventListener('keydown', (event) => {
         if(event.key === "F9") {
+            console.log("F9");
             if(move_corners == "edit") {
                 move_corners = "map";
                 // dat.GUI.toggleHide();
@@ -180,7 +230,7 @@ function app() {
                 move_corners = "edit";
             }
 
-            cbs[param.plane_id].set_visible(move_corners === "map");
+            // cbs[param.plane_id].set_visible(move_corners === "map");
 
             if(move_corners !== "map") {
                 corner_id = null;
@@ -232,6 +282,7 @@ function app() {
         null,
         (err) => alert("texture load error " + JSON.stringify(err))
     );
+
     */
 ``
     // console.log(test_texture);
