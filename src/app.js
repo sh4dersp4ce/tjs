@@ -34,6 +34,7 @@ let osc1 = osc2 = osc3 = osc4 = [0, 0, 0, 0];
 
 let angle_goal = 0.;
 let emit = 0.;
+let dir_flag = 0;
 
 
 let videoTex = null;
@@ -92,6 +93,8 @@ let pass = 1;
 
 let angle = 0.;
 
+let dir = 1; 
+
 function animate() {
 
     let now = (+new Date());
@@ -106,11 +109,14 @@ function animate() {
             sign = -1;
     }
     let da = .01 + (Math.random() / 200. * sign);
+
+
+    
     if (angle > angle_goal) {
-        angle -= da;
+        angle -= da ;
     }
     else {
-        angle += da;
+        angle += da ;
     }
 
     angle %= 1.;
@@ -138,6 +144,9 @@ function animate() {
     if (emit > 0.) {
         emit -= .3;
     };
+
+    dir_flag = 0;
+
         
     requestAnimationFrame(animate);   
 }

@@ -55,7 +55,7 @@ function add_tunnel(scene, backstage, folder, uniforms) {
         void main() {
             gl_FragColor =  texture(backbuffer, _uv) * .9;;
 
-            gl_FragColor.xz = (conv(_uv, backbuffer, laplace) * 60.).xz;
+            // gl_FragColor.xz = (conv(_uv, backbuffer, laplace) * 60.).xz;
 
             // gl_FragColor.a = fract(_uv.x * 16.);
             gl_FragColor.a = 1.;
