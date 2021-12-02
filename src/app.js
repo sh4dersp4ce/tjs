@@ -212,9 +212,13 @@ function app() {
             // cbs.push(plane);
             // plane.update_material(editor.getValue());     
 
-            let tunnel = add_tunnel(scene, backstage, folder, uniforms);
-            cbs.push(tunnel);
-            tunnel.update_material(editor.getValue()); 
+            // let tunnel = add_tunnel(scene, backstage, folder, uniforms);
+            // cbs.push(tunnel);
+            // tunnel.update_material(editor.getValue()); 
+
+            let torus = add_torus(scene, backstage, folder, uniforms);
+            cbs.push(torus);
+            torus.update_material(editor.getValue());
         },
         loaded: false,
         plane_id: 0

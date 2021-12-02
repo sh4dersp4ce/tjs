@@ -14,12 +14,14 @@ function add_tunnel(scene, backstage, folder, uniforms) {
 
     const tunnel_vertex_shader = vert`
         varying vec2 _uv;
+        uniform float time;
+
         void main() {
             gl_PointSize = 1.0;
             _uv = fract(uv * 8.);
 
             vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-            gl_Position = projectionMatrix * mvPosition;
+            gl_Position = projectionMatrix * mvPosition + sin(time) / 100.;
             _uv = uv;
             
         }
@@ -75,7 +77,7 @@ function add_tunnel(scene, backstage, folder, uniforms) {
             // organge is 2 * r, g
             // gl_FragColor.b *= green > .5 ? .0 : 1.;
             gl_FragColor.b *= green > .5 ? 0. : 1.;
-            gl_FragColor.g *= green > .5 ? .5 : 1.;
+            gl_FragColor.g *= green > .8 ? .5 : 1.;
 
 
 
