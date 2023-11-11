@@ -5,7 +5,7 @@ const frag = x => x;
 const renderer = new THREE.WebGLRenderer({alpha: false});
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color('purple');
+scene.background = new THREE.Color('black');
 
 
 const camera = new THREE.PerspectiveCamera(
@@ -231,7 +231,7 @@ function app() {
         (err) => alert("texture load error " + JSON.stringify(err))
     );
     */
-
+``
     // console.log(test_texture);
 
     camera.position.z = 5;
