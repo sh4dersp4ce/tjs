@@ -121,10 +121,12 @@ function app() {
         .split("&")
         .forEach((item) => {get_query[item.split("=")[0]] = item.split("=")[1]});
     
-    fetch('/' + get_query.src)
-    .then((response) => {
-        response.text().then(text => editor.setValue(text));
-    });
+    if(!!get_query.src) {
+        fetch('/' + get_query.src)
+        .then((response) => {
+            response.text().then(text => editor.setValue(text));
+        });
+    }
 
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
@@ -208,6 +210,7 @@ function app() {
 
     param.add_plane();
 
+    /*
     const texture_loader = new THREE.TextureLoader();
     texture_loader.load("assets/test.jpg",
         (texture) => {
@@ -225,6 +228,7 @@ function app() {
         null,
         (err) => alert("texture load error " + JSON.stringify(err))
     );
+    */
 
     // console.log(test_texture);
 
