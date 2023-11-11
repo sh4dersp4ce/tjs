@@ -12,7 +12,7 @@ uniform int plane_id;
 uniform vec2 resolution;
 
 void main() {
-    vec2 uv = _uv;
+    vec2 uv = _uv * 2. - 1.;
     vec3 color = vec3(0.0);
     
     gl_FragColor = vec4(color, 1.);
